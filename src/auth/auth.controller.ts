@@ -27,7 +27,7 @@ export class AuthController {
     return res.status(HttpStatus.FORBIDDEN).json({ message: 'Username or password wrong!' });
   }
 
-  @Post('register')
+  @Post('register/')
   async registerUser(@Response() res: any, @Body() body: User) {
     if (!(body && body.username && body.password)) {
       return res.status(HttpStatus.FORBIDDEN).json({ message: 'Username and password are required!' });
@@ -45,5 +45,43 @@ export class AuthController {
     }
 
     return res.status(HttpStatus.OK).json(user);
+  }
+
+  @Post('register/full')
+  async registerFull(@Response() res: any, @Body() body) {
+    if (!(body && body.username && body.password)) {
+      return res.status(HttpStatus.FORBIDDEN).json({ message: 'Username and password are required!' });
+    }
+
+    let user = await this.userService.getUserByUsername(body.username);
+
+    if (user) {
+      return res.status(HttpStatus.FORBIDDEN).json({ message: 'Username exists' });
+    } else {
+      user = await this.userService.createUser(body);
+      if (user) {
+        user.passwordHash = undefined;
+        await this.userService.appendHumanResource(user.id, body.humanResourceId);
+        await this.userService.appendSupervisor(user.id, body.supervisorId);
+      }
+    }
+
+    return res.status(HttpStatus.OK).json(user);
+  }
+
+  @Post('append/supervisor')
+  async appendSupervisorToUser(@Body() body) {
+    return await this.userService.appendSupervisor(body.id, body.supervisorId);
+  }
+
+  @Post('append/hr')
+  async appendHumanResourceToUser(@Body() body) {
+    return await this.userService.appendHumanResource(body.id, body.humanResourceId);
+  }
+
+  @Post('append/all')
+  async appendHumanResourceAndSupervisorToUser(@Body() body) {
+    await this.userService.appendSupervisor(body.id, body.supervisorId);
+    return await this.userService.appendHumanResource(body.id, body.humanResourceId);
   }
 }
