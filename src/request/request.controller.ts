@@ -1,34 +1,42 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Put } from '@nestjs/common';
 import { RequestService } from './request.service';
 
 @Controller('requests')
 export class RequestController {
 
-  constructor(private readonly articleService: RequestService) {
+  constructor(private readonly requestService: RequestService) {
   }
 
   @Post()
   async create(@Body() data) {
-    return this.articleService.create(data.userId, data);
+    return await this.requestService.create(data.userId, data);
   }
 
   @Get()
   async showAll() {
-    return this.articleService.showAll();
+    return await this.requestService.showAll();
   }
 
   @Get(':id')
   async show(@Param('id') id) {
-    return this.articleService.show(id);
+    return await this.requestService.show(id);
   }
 
-  @Get(':id/user')
-  async findAllByUserId(@Param('id') userId) {
-    return this.articleService.showAllByUser(userId);
+  @Get(':id/:type')
+  async findAllByUserId(@Param('id') id, @Param('type') type) {
+    if (type === 'user') {
+      return await this.requestService.showAllByUser(id);
+    } else if (type === 'supervisor') {
+      return await this.requestService.showRequestsBySupervisor(id);
+    } else { // Human Resources
+      Logger.log('Hello');
+      return await this.requestService.showRequestsByHumanResources(id);
+    }
   }
 
   @Put(':id')
   async updateApproval(@Param('id') id, @Body() data) {
-    return this.articleService.updateApproval(id, data);
+    return await this.requestService.updateApproval(id, data);
   }
+
 }

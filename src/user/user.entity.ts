@@ -26,7 +26,7 @@ export class User {
   requests: RequestEntity[];
 
   @ManyToOne(type => User)
-  superviosr: User;
+  supervisor: User;
 
   @ManyToOne(type => User)
   humanResource: User;

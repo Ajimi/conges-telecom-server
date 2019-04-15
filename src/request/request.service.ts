@@ -21,20 +21,40 @@ export class RequestService {
   }
 
   async showAll() {
-    return await this.requestRepository.find();
-  }
-
-  async showAllByUser(userId: any) {
     return await this.requestRepository.find({
-      where: { user: { id: userId } },
+      relations: ['user'],
     });
   }
 
   async show(id) {
-    return await this.requestRepository.findOne(id);
+    return await this.requestRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
   }
 
-  async updateApproval(id: any, data) {
+  async showAllByUser(id) {
+    return await this.userRepository.find({
+      where: { id },
+      relations: ['requests'],
+    });
+  }
+
+  async showRequestsBySupervisor(id) {
+    return await this.userRepository.find({
+      where: { supervisor: { id } },
+      relations: ['requests'],
+    });
+  }
+
+  async showRequestsByHumanResources(id) {
+    return await this.userRepository.find({
+      where: { humanResource: { id } },
+      relations: ['requests'],
+    });
+  }
+
+  async updateApproval(id, data) {
     const request = await this.requestRepository.update({ id }, data);
     return await this.requestRepository.findOne(id);
   }
