@@ -15,6 +15,12 @@ export class RequestEntity {
   @Column()
   isApproved: boolean;
 
+  @Column()
+  state: string;
+
+  @Column()
+  reason: string;
+
   @ManyToOne(type => User, user => user.requests)
   user: User;
 }

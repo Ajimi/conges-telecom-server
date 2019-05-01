@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RequestController } from './request.controller';
 
-describe('RequestEntity Controller', () => {
+describe('DaysoffEntity Controller', () => {
   let controller: RequestController;
 
   beforeEach(async () => {

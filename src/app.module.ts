@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RequestModule } from './request/request.module';
+import { DaysoffModule } from './daysoff/daysoff.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { RequestModule } from './request/request.module';
     UserModule,
     AuthModule,
     RequestModule,
+    DaysoffModule,
   ],
   controllers: [AppController],
   providers: [AppService],

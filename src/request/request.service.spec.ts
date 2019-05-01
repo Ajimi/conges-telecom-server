@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RequestService } from './request.service';
 
-describe('RequestService', () => {
+describe('DaysoffService', () => {
   let service: RequestService;
 
   beforeEach(async () => {

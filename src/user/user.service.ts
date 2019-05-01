@@ -54,4 +54,8 @@ export class UserService {
     await this.userRepository.update({ id }, { humanResource });
     return await this.getUserById(id);
   }
+
+  async modifySolde(id: any, solde: number) {
+    return await this.userRepository.update(id, { solde });
+  }
 }

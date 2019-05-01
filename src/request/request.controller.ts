@@ -39,4 +39,15 @@ export class RequestController {
     return await this.requestService.updateApproval(id, data);
   }
 
+  @Put('accept/:id')
+  async acceptRequest(@Param('id') id, @Body() data) {
+    // TODO CHange solde if he don"t have enough solde then return error
+    // TODO update consumed solde
+    this.requestService.acceptRequest(id, { state: 'ACCEPTED', isApproved: true });
+  }
+
+  @Put('refuse/:id')
+  async refuseRequest(@Param('id') id, @Body() data) {
+    return await this.requestService.updateApproval(id, { state: 'REFUSED', isApproved: false });
+  }
 }

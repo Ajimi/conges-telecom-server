@@ -1,10 +1,12 @@
-import { Body, Controller, HttpStatus, Post, Response } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.entity';
 
 @Controller('auth')
 export class AuthController {
+  asyn;
+
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService) {
@@ -47,6 +49,11 @@ export class AuthController {
     return res.status(HttpStatus.OK).json(user);
   }
 
+  @Get('user/:id')
+  async getUser(@Param('id') id) {
+    return await this.userService.getUserById(id);
+  }
+
   @Post('register/full')
   async registerFull(@Response() res: any, @Body() body) {
     if (!(body && body.username && body.password)) {
@@ -83,5 +90,10 @@ export class AuthController {
   async appendHumanResourceAndSupervisorToUser(@Body() body) {
     await this.userService.appendSupervisor(body.id, body.supervisorId);
     return await this.userService.appendHumanResource(body.id, body.humanResourceId);
+  }
+
+  @Post('solde/:id')
+  async modifySolde(@Body() body, @Param('id') id) {
+    return await this.userService.modifySolde(id, body.solde);
   }
 }

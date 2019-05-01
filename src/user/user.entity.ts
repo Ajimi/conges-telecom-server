@@ -7,6 +7,15 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ length: 50, nullable: true })
+  firstname: string;
+
+  @Column({ length: 50, nullable: true })
+  lastname: string;
+
+  @Column({ length: 50, nullable: true })
+  cin: string;
+
   @Column({ length: 50, unique: true })
   username: string;
 
@@ -21,6 +30,12 @@ export class User {
 
   @Column({ length: 500 })
   email: string;
+
+  @Column('int')
+  solde: number;
+
+  @Column('int')
+  consumedSolde: number;
 
   @OneToMany(type => RequestEntity, request => request.user)
   requests: RequestEntity[];

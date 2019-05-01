@@ -55,7 +55,15 @@ export class RequestService {
   }
 
   async updateApproval(id, data) {
-    const request = await this.requestRepository.update({ id }, data);
+    const request = await this.requestRepository.update(id, data);
     return await this.requestRepository.findOne(id);
+  }
+
+  async acceptRequest(id, data) {
+    await this.requestRepository.update(id, data);
+    const request = await this.requestRepository.findOne(id, {
+      relations: ['user'],
+    });
+    // this.userRepository.update()
   }
 }
