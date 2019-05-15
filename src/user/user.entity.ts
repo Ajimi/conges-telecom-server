@@ -37,6 +37,9 @@ export class User {
   @Column('int')
   consumedSolde: number;
 
+  @Column('datetime')
+  registerDate: Date;
+
   @OneToMany(type => RequestEntity, request => request.user)
   requests: RequestEntity[];
 

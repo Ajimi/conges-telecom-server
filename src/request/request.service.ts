@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RequestEntity } from './request.entity';
 import { Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { RequestDTO } from './dto/request.dto';
+import moment = require('moment');
 
 @Injectable()
 export class RequestService {
@@ -13,11 +14,26 @@ export class RequestService {
   ) {
   }
 
+  numberOfDays(start: Date, end: Date) {
+    return moment(start).diff(moment(end), 'days');
+  }
+
+  canAddRequest(totalDays, restedSoldeDays) {
+    return restedSoldeDays >= totalDays;
+  }
+
   async create(userId, data: RequestDTO) {
     const employee = await this.userRepository.findOne({ where: { id: userId } });
-    const request = await this.requestRepository.create({ ...data, user: employee });
-    await this.requestRepository.save(request);
-    return request;
+
+    const restedSolde = employee.solde - employee.consumedSolde;
+    const totalDaysRequested = this.numberOfDays(data.dateStart, data.dateEnd);
+    if (this.canAddRequest(totalDaysRequested, restedSolde)) {
+      const request = await this.requestRepository.create({ ...data, user: employee });
+      await this.requestRepository.save(request);
+      return request;
+    } else {
+      throw new HttpException(restedSolde + '', HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 
   async showAll() {
