@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RequestEntity } from './request.entity';
 import { Repository } from 'typeorm';
@@ -15,7 +15,7 @@ export class RequestService {
   }
 
   numberOfDays(start: Date, end: Date) {
-    return moment(start).diff(moment(end), 'days');
+    return moment(end).diff(moment(start), 'days');
   }
 
   canAddRequest(totalDays, restedSoldeDays) {
@@ -27,7 +27,7 @@ export class RequestService {
 
     const restedSolde = employee.solde - employee.consumedSolde;
     const totalDaysRequested = this.numberOfDays(data.dateStart, data.dateEnd);
-    if (this.canAddRequest(totalDaysRequested, restedSolde)) {
+    if (this.canAddRequest(totalDaysRequested + 1, restedSolde)) {
       const request = await this.requestRepository.create({ ...data, user: employee });
       await this.requestRepository.save(request);
       return request;
@@ -65,21 +65,34 @@ export class RequestService {
 
   async showRequestsByHumanResources(id) {
     return await this.userRepository.find({
-      where: { humanResource: { id } },
+      // where: { id: { id} },
       relations: ['requests'],
     });
   }
 
   async updateApproval(id, data) {
     const request = await this.requestRepository.update(id, data);
-    return await this.requestRepository.findOne(id);
+    return await this.requestRepository.findOne(id, {
+      relations: ['user'],
+    });
   }
 
-  async acceptRequest(id, data) {
-    await this.requestRepository.update(id, data);
+  async updateRequest(id, data, shouldAccept) {
     const request = await this.requestRepository.findOne(id, {
       relations: ['user'],
     });
-    // this.userRepository.update()
+    const restedSolde = request.user.solde - request.user.consumedSolde;
+    const totalDays = this.numberOfDays(request.dateStart, request.dateEnd);
+    Logger.log(totalDays + '');
+    if (this.canAddRequest(totalDays + 1, restedSolde)) {
+      await this.requestRepository.update(id, data);
+      if (shouldAccept) {
+        request.user.consumedSolde += totalDays + 1;
+        await this.userRepository.save(request.user);
+      }
+      return request;
+    } else {
+      throw new HttpException(restedSolde + '', HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 }
